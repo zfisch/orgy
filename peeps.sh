@@ -28,13 +28,9 @@ fi
 echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
 
-#3
+#3 
 #get number of pages to pull membership data from (necessary due to github pagination, see https://developer.github.com/guides/traversing-with-pagination/)
-curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members > numpages.txt
-
-# get number of pages
-#!/usr/bin/env python
-numpages="$(python pyscripts/parsenumpages.py)"
+numpages=$(curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members | grep -oP '(?<=page=)\d(?=>; rel="last")')
 
 #4
 #Create member list file
