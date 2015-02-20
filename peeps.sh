@@ -2,15 +2,10 @@
 #This script will automatically follow all of the users in a given Github organization (if you have access). 
 # Note: this only works if 2-Factor authorization is disabled.
  
-#1
-#get username for authentication
-echo "Enter your Github username and press [ENTER]: "
-read name
- 
-#2
-#grab existing token or authenticate user with necesarry permissions
-echo "Have you run this script before? (y/n) "
-read boolean
+getUserInput () {
+	echo $1
+	read $2
+}
 
 if [ -f ./.peeps-crash-flag ]; then
 	echo "An unclean exit was detected- removing stale files."
@@ -92,3 +87,10 @@ rm ./members.txt
 rm ./cred.txt
 rm ./numpages.txt
 rm ./.peeps-crash-flag
+
+
+
+##### the great wall of rewrite #####
+
+getUserInput "Enter your Github username and press [ENTER]: " name
+getUserInput "Have you run this script before? (y/n) " boolean
