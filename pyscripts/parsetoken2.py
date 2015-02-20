@@ -3,6 +3,7 @@
 # Parses a token for follow peeps from a newly created, single authentication.
 
 import json
+import unicodedata
 
 json_data=open("cred.txt").read()
 data = json.loads(json_data)
