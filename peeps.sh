@@ -3,7 +3,7 @@
 # Note: this only works if 2-Factor authorization is disabled.
  
 getUserInput () {
-	echo $1
+	echo -n $1
 	read $2
 }
 
@@ -20,50 +20,30 @@ crashFlag () {
 	fi
 }
 
+followUsers () {
+	count=0
+	for i in ${LOGINS[@]};
+	  do 
+	    response=$(curl --silent --write-out %{http_code} --output /dev/null -u $token:x-oauth-basic -X PUT https://api.github.com/user/following/$i)
+	 	if [ $response == "204" ]
+	 		then
+	 		echo "You are now following: "$i
+	 	else
+	 		echo "There was a problem following: "$i
+	 	fi
+	 	sleep .01
+	 	count=$((count + 1))
+	  done
+ }
 
-
- 
-#5
-#need to parse data from GET request for user logins and store in variable <users> here
-#!/usr/bin/env python
-LOGINS="$(python pyscripts/parselogins.py)"
- 
-#6
-#follow all users
-echo "Following all users in "$org", please wait..."
-count=0
-for i in ${LOGINS[@]};
-  do 
-    response=$(curl --silent --write-out %{http_code} --output /dev/null -u $token:x-oauth-basic -X PUT https://api.github.com/user/following/$i)
- 	if [ $response == "204" ]
- 		then
- 		echo "You are now following: "$i
- 	else
- 		echo "There was a problem following: "$i
- 	fi
- 	sleep .01
- 	count=$((count + 1))
-  done
-
-#7
-#report usage statistics
-
+reportStatistics () {
 curl -X POST \
   -H "X-Parse-Application-Id: 3kjgEi9umCaN820vGqijG4fqWufkCuCcXWLYpWm0" \
   -H "X-Parse-REST-API-Key: UB6soY8sDwOHSohBEigf417HNVFXzMglmOuLxhjF" \
   -H "Content-Type: application/json" \
   -d '{"githubUsername":"'$name'","usersFollowed":'$count',"organization":"'$org'"}' \
   https://api.parse.com/1/classes/statistics
-
-
-#8
-#clean up
-rm ./members.txt
-rm ./cred.txt
-rm ./numpages.txt
-rm ./.peeps-crash-flag
-
-
+}
 
 ##### the great wall of rewrite #####
 
@@ -106,3 +86,17 @@ until [ $COUNTER -lt 0 ]; do
 	curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
 	let COUNTER-=1
 done
+
+#need to parse data from GET request for user logins and store in variable <users> here
+#!/usr/bin/env python
+LOGINS="$(python pyscripts/parselogins.py)"
+
+echo "Following all users in "$org", please wait..."
+followUsers
+
+reportStatistics
+
+checkAndRemove ./members.txt
+checkAndRemove ./cred.txt
+checkAndRemove ./numpages.txt
+crashFlag remove
