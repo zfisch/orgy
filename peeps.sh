@@ -20,37 +20,8 @@ crashFlag () {
 	fi
 }
 
-if [ $boolean == "y" ]
-then
-	curl -Ss -u $name https://api.github.com/authorizations > cred.txt
-	#!/usr/bin/env python
-	token="$(python pyscripts/parsetoken.py)"
-else
-	curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeps"}' https://api.github.com/authorizations > cred.txt
-	#!/usr/bin/env python
-	token="$(python pyscripts/parsetoken2.py)"
-fi
 
-#4 
-#find members of given github organization
-echo "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
-read org
 
-#3
-#get number of pages to pull membership data from (necessary due to github pagination, see https://developer.github.com/guides/traversing-with-pagination/)
-curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members > numpages.txt
-
-# get number of pages
-#!/usr/bin/env python
-numpages="$(python pyscripts/parsenumpages.py)"
-
-#4
-#Create member list file
-COUNTER=$numpages
-until [ $COUNTER -lt 0 ]; do
-	curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
-	let COUNTER-=1
-done
  
 #5
 #need to parse data from GET request for user logins and store in variable <users> here
@@ -108,6 +79,30 @@ fi
 
 crashFlag add
 
+if [ $boolean == "y" ]
+then
+	curl -Ss -u $name https://api.github.com/authorizations > cred.txt
+	#!/usr/bin/env python
+	token="$(python pyscripts/parsetoken.py)"
+else
+	curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeps"}' https://api.github.com/authorizations > cred.txt
+	#!/usr/bin/env python
+	token="$(python pyscripts/parsetoken2.py)"
+fi
+
+getUserInput "Enter the Github organization whose peeps you would like to follow and press [ENTER]: " org
+
+#get number of pages to pull membership data from (necessary due to github pagination, see https://developer.github.com/guides/traversing-with-pagination/)
+curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members > numpages.txt
 
 
+# get number of pages
+#!/usr/bin/env python
+numpages="$(python pyscripts/parsenumpages.py)"
 
+#Create member list file
+COUNTER=$numpages
+until [ $COUNTER -lt 0 ]; do
+	curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
+	let COUNTER-=1
+done
