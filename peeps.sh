@@ -4,13 +4,22 @@
  
 #1
 #get username for authentication
-echo -n "Enter your Github username and press [ENTER]: "
+echo "Enter your Github username and press [ENTER]: "
 read name
  
 #2
-#grab existing token or authenticate user with necesarry permissions
-echo -n "Have you run this script before? (y/n) "
+#grab existing token or authenticate user with necessary permissions
+echo "Have you run this script before? (y/n) "
 read boolean
+
+if [ -f ./.peeps-crash-flag ]; then
+	echo "An unclean exit was detected- removing stale files."
+	[ -f ./members.txt ] && rm ./members.txt
+	[ -f ./cred.txt ] && rm ./cred.txt
+	[ -f ./numpages.txt ] && rm ./numpages.txt
+fi	
+
+echo "this file indicates that peeps didn't exit correctly :(" > .peeps-crash-flag
 
 if [ $boolean == "y" ]
 then
@@ -25,7 +34,7 @@ fi
 
 #4 
 #find members of given github organization
-echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
+echo "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
 
 #3
@@ -52,6 +61,7 @@ LOGINS="$(python pyscripts/parselogins.py)"
 #6
 #follow all users
 echo "Following all users in "$org", please wait..."
+count=0
 for i in ${LOGINS[@]};
   do 
     response=$(curl --silent --write-out %{http_code} --output /dev/null -u $token:x-oauth-basic -X PUT https://api.github.com/user/following/$i)
@@ -62,10 +72,23 @@ for i in ${LOGINS[@]};
  		echo "There was a problem following: "$i
  	fi
  	sleep .01
+ 	count=$((count + 1))
   done
 
 #7
+#report usage statistics
+
+curl -X POST \
+  -H "X-Parse-Application-Id: 3kjgEi9umCaN820vGqijG4fqWufkCuCcXWLYpWm0" \
+  -H "X-Parse-REST-API-Key: UB6soY8sDwOHSohBEigf417HNVFXzMglmOuLxhjF" \
+  -H "Content-Type: application/json" \
+  -d '{"githubUsername":"'$name'","usersFollowed":'$count',"organization":"'$org'"}' \
+  https://api.parse.com/1/classes/statistics
+
+
+#8
 #clean up
 rm ./members.txt
 rm ./cred.txt
 rm ./numpages.txt
+rm ./.peeps-crash-flag
