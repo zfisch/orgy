@@ -7,11 +7,15 @@ getUserInput () {
 	read $2
 }
 
+checkAndRemove () {
+	[ -f $1 ] && rm $1
+}
+
 if [ -f ./.peeps-crash-flag ]; then
 	echo "An unclean exit was detected- removing stale files."
-	[ -f ./members.txt ] && rm ./members.txt
-	[ -f ./cred.txt ] && rm ./cred.txt
-	[ -f ./numpages.txt ] && rm ./numpages.txt
+	checkAndRemove ./members.txt
+	checkAndRemove ./cred.txt
+	checkAndRemove ./numpages.txt
 fi	
 
 echo "this file indicates that peeps didn't exit correctly :(" > .peeps-crash-flag
