@@ -12,6 +12,15 @@ read name
 echo -n "Have you run this script before? (y/n) "
 read boolean
 
+if [ -f ./.peeps-crash-flag ] then
+	echo -n "An unclean exit was detected- removing stale files."
+	rm ./members.txt
+	rm ./cred.txt
+	rm ./numpages.txt
+fi	
+
+echo "this file indicates that peeps didn't exit correctly :(" > .peeps-crash-flag
+
 if [ $boolean == "y" ]
 then
 	curl -Ss -u $name https://api.github.com/authorizations > cred.txt
@@ -82,3 +91,4 @@ curl -X POST \
 rm ./members.txt
 rm ./cred.txt
 rm ./numpages.txt
+rm ./.peeps-crash-flag
