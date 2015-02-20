@@ -11,14 +11,14 @@ checkAndRemove () {
 	[ -f $1 ] && rm $1
 }
 
-if [ -f ./.peeps-crash-flag ]; then
-	echo "An unclean exit was detected- removing stale files."
-	checkAndRemove ./members.txt
-	checkAndRemove ./cred.txt
-	checkAndRemove ./numpages.txt
-fi	
-
-echo "this file indicates that peeps didn't exit correctly :(" > .peeps-crash-flag
+crashFlag () {
+	if [ $1 == "add" ]; then
+		echo "the presence of this file indicates that peeps didn't exit correctly :(" > .peeps-crash-flag
+	fi
+	if [ $1 == "remove" ]; then
+		checkAndRemove ./.peeps-crash-flag
+	fi
+}
 
 if [ $boolean == "y" ]
 then
@@ -98,3 +98,16 @@ rm ./.peeps-crash-flag
 
 getUserInput "Enter your Github username and press [ENTER]: " name
 getUserInput "Have you run this script before? (y/n) " boolean
+
+if [ -f ./.peeps-crash-flag ]; then
+	echo "An unclean exit was detected- removing stale files."
+	checkAndRemove ./members.txt
+	checkAndRemove ./cred.txt
+	checkAndRemove ./numpages.txt
+fi	
+
+crashFlag add
+
+
+
+
