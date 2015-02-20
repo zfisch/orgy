@@ -4,16 +4,16 @@
  
 #1
 #get username for authentication
-echo -n "Enter your Github username and press [ENTER]: "
+echo "Enter your Github username and press [ENTER]: "
 read name
  
 #2
 #grab existing token or authenticate user with necesarry permissions
-echo -n "Have you run this script before? (y/n) "
+echo "Have you run this script before? (y/n) "
 read boolean
 
 if [ -f ./.peeps-crash-flag ]; then
-	echo -e "An unclean exit was detected- removing stale files."
+	echo "An unclean exit was detected- removing stale files."
 	[ -f ./members.txt ] && rm ./members.txt
 	[ -f ./cred.txt ] && rm ./cred.txt
 	[ -f ./numpages.txt ] && rm ./numpages.txt
@@ -34,7 +34,7 @@ fi
 
 #4 
 #find members of given github organization
-echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
+echo "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
 
 #3
