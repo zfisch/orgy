@@ -12,11 +12,11 @@ read name
 echo -n "Have you run this script before? (y/n) "
 read boolean
 
-if [ -f ./.peeps-crash-flag ] then
-	echo -n "An unclean exit was detected- removing stale files."
-	rm ./members.txt
-	rm ./cred.txt
-	rm ./numpages.txt
+if [ -f ./.peeps-crash-flag ]; then
+	echo -e "An unclean exit was detected- removing stale files."
+	[ -f ./members.txt ] && rm ./members.txt
+	[ -f ./cred.txt ] && rm ./cred.txt
+	[ -f ./numpages.txt ] && rm ./numpages.txt
 fi	
 
 echo "this file indicates that peeps didn't exit correctly :(" > .peeps-crash-flag
