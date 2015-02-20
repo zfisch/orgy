@@ -8,7 +8,7 @@ echo "Enter your Github username and press [ENTER]: "
 read name
  
 #2
-#grab existing token or authenticate user with necesarry permissions
+#grab existing token or authenticate user with necessary permissions
 echo "Have you run this script before? (y/n) "
 read boolean
 
