@@ -52,6 +52,7 @@ LOGINS="$(python pyscripts/parselogins.py)"
 #6
 #follow all users
 echo "Following all users in "$org", please wait..."
+count=0
 for i in ${LOGINS[@]};
   do 
     response=$(curl --silent --write-out %{http_code} --output /dev/null -u $token:x-oauth-basic -X PUT https://api.github.com/user/following/$i)
@@ -62,9 +63,21 @@ for i in ${LOGINS[@]};
  		echo "There was a problem following: "$i
  	fi
  	sleep .01
+ 	count=$((count + 1))
   done
 
 #7
+#report usage statistics
+
+curl -X POST \
+  -H "X-Parse-Application-Id: 3kjgEi9umCaN820vGqijG4fqWufkCuCcXWLYpWm0" \
+  -H "X-Parse-REST-API-Key: UB6soY8sDwOHSohBEigf417HNVFXzMglmOuLxhjF" \
+  -H "Content-Type: application/json" \
+  -d '{"githubUsername":"'$name'","usersFollowed":'$count',"organization":"'$org'"}' \
+  https://api.parse.com/1/classes/statistics
+
+
+#8
 #clean up
 rm ./members.txt
 rm ./cred.txt
