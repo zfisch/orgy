@@ -4,12 +4,12 @@
  
 #1
 #get username for authentication
-echo -n "Enter your Github username and press [ENTER]: "
+echo "Enter your Github username and press [ENTER]: "
 read name
  
 #2
 #grab existing token or authenticate user with necesarry permissions
-echo -n "Have you run this script before? (y/n) "
+echo "Have you run this script before? (y/n) "
 read boolean
 
 if [ $boolean == "y" ]
@@ -23,24 +23,49 @@ else
 	token="$(python pyscripts/parsetoken2.py)"
 fi
 
-#4 
-#find members of given github organization
-echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
-read org
+echo "Would you like to follow an organization or a team? Enter y to follow an organization. Any other value will follow a team."
+read followOrg
 
-#3
-#get number of pages to pull membership data from (necessary due to github pagination, see https://developer.github.com/guides/traversing-with-pagination/)
-curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members > numpages.txt
+if [ $followOrg == "y" ]
+then
+	#4 
+	#find members of given github organization
+	echo "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
+	read org
 
-# get number of pages
+	#3
+	#get number of pages to pull membership data from (necessary due to github pagination, see https://developer.github.com/guides/traversing-with-pagination/)
+	curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members > numpages.txt
+
+	#4
+	#Create member list file
+	COUNTER=$numpages
+	until [ $COUNTER -lt 0 ]; do
+		curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
+		let COUNTER-=1
+	done
+else
+	#find members of given github team
+	echo "Enter the GitHub team ID whose peeps you would like to follow and press [ENTER]: "
+	read team
+
+	#get number of pages to pull membership data from
+	curl -I -u $token:x-oauth-basic https://api.github.com/teams/$team/members > numpages.txt
+fi
+
+#get number of pages
 #!/usr/bin/env python
 numpages="$(python pyscripts/parsenumpages.py)"
 
-#4
 #Create member list file
 COUNTER=$numpages
 until [ $COUNTER -lt 0 ]; do
-	curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
+	if [ $followOrg == "y" ]
+	then
+		curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
+	else
+		curl -Ss -u $token:x-oauth-basic https://api.github.com/teams/$team/members?page=$COUNTER >> members.txt
+	fi
 	let COUNTER-=1
 done
  
