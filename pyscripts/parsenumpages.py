@@ -3,7 +3,7 @@
 data=open("numpages.txt").read()
 
 def findPages():
-	numpages = 'There is a pagination error, please notify the developers : )'
+	# numpages = 'There is a pagination error, please notify the developers : )'
 	splitData = data.split('page=')
 	for i in splitData:
 		str(i)
@@ -12,6 +12,6 @@ def findPages():
 			line = lines[0]
 			splitLine = line.split('>')
 			numpages = splitLine[0]
-	print numpages
+	# print numpages
 
 findPages()
